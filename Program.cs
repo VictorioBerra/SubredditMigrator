@@ -1,5 +1,5 @@
 ﻿using System;
-using Microsoft.Extensions.CommandLineUtils;
+using McMaster.Extensions.CommandLineUtils;
 using System.Linq;
 using RedditSharp;
 
@@ -7,58 +7,95 @@ namespace reddit_importer
 {
     class Program
     {
-        static void Main(string[] args)
+        [Option("--targetusername")]
+        public string TargetUsername { get; set; }
+
+        [Option("--targetpassword")]
+        public string TargetPassword { get; set; }
+
+        [Option("--destusername")]
+        public string DestUsername { get; set; }
+
+        [Option("--destpassword")]
+        public string DestPassword { get; set; }
+
+        [Option]
+        public bool Verbose { get; set; }
+
+        public static int Main(string[] args)
+            => CommandLineApplication.Execute<Program>(args);
+
+        private void OnExecute()
         {
-            var app = new CommandLineApplication();
-            app.Name = "RedditImporter";
-            app.Description = "Import subreddits from another account.";
 
-            var targetusername = app.Option("--targetusername <targetusername>",
-                                    "Username of he target.",
-                                    CommandOptionType.SingleValue);
-
-            var targetpassword = app.Option("--targetpassword <targetpassword>",
-                                    "Password of he target.",
-                                    CommandOptionType.SingleValue);
-
-            var destusername = app.Option("--destusername <destusername>",
-                                    "Username of he destination account.",
-                                    CommandOptionType.SingleValue);
-
-            var destpassword = app.Option("--destpassword <destpassword>",
-                                    "Password of the destination account.",
-                                    CommandOptionType.SingleValue);
-
-            app.OnExecute(() =>
+            if (string.IsNullOrEmpty(TargetUsername) ||
+                string.IsNullOrEmpty(TargetPassword) ||
+                string.IsNullOrEmpty(DestUsername) ||
+                string.IsNullOrEmpty(DestPassword))
             {
+                throw new Exception("missing required info");
+            }
 
-                if (!targetusername.HasValue() || !targetpassword.HasValue() || !destusername.HasValue() || !destpassword.HasValue())
+            Console.WriteLine($"Attempting login for {TargetUsername}");  
+
+            var importReddit = new Reddit();
+            importReddit.LogIn(TargetUsername, TargetPassword);
+            var importAccount = importReddit.User;
+
+            Console.WriteLine($"Attempting login for {DestUsername}");  
+
+            var exportReddit = new Reddit();
+            exportReddit.LogIn(DestUsername, DestPassword);
+
+            Console.WriteLine($"Starting subreddit migration.");  
+
+            Log(Verbose, $"Enumerating subreddit count for {TargetUsername}.");
+
+            int totalSubscriptions = importAccount.SubscribedSubreddits.Count();
+            int currentSubscription = 0;
+
+            Log(Verbose, $"Getting names for {totalSubscriptions} subreddits");
+
+            foreach (string subreddit in importAccount.SubscribedSubreddits.Select(x => x.Name))
+            {
+                Console.WriteLine($"Subscribing {exportReddit.User} to {subreddit} ({currentSubscription + 1} of {totalSubscriptions})");  
+
+                currentSubscription++;
+                
+                RedditSharp.Things.Subreddit subredditToResubscribe = null;
+
+                try
                 {
-                    throw new Exception("missing required info");
+                    subredditToResubscribe = exportReddit.GetSubreddit(subreddit);
+
+                    if(subredditToResubscribe == null)
+                    {
+                        Console.WriteLine($"Failed to fetch {subreddit}. Skipping subscription.");  
+                    }
+                    else
+                    {
+                        subredditToResubscribe.Subscribe();
+                    }
+
                 }
-
-                var importReddit = new Reddit();
-                importReddit.LogIn(targetusername.Value(), targetpassword.Value());
-                var importAccount = importReddit.User;
-
-                var exportReddit = new Reddit();
-                exportReddit.LogIn(destusername.Value(), destpassword.Value());
-
-                int totalSubscriptions = importAccount.SubscribedSubreddits.Count();
-                int currentSubscription = 0;
-
-                foreach (string subreddit in importAccount.SubscribedSubreddits.Select(s => s.Name))
+                catch(Exception ex)
                 {
-                    currentSubscription++;
-                    exportReddit.GetSubreddit(subreddit).Subscribe();
-                    Console.WriteLine($"Subscribed {exportReddit.User} to {subreddit} ({currentSubscription} of {totalSubscriptions})");  
+                    Console.WriteLine($"Failed to fetch {subreddit}. Skipping subscription.");
+
+                    Log(Verbose, ex.Message);
                 }
-
-                return 0;
-            });
-
-
-            app.Execute(args);
+                
+                Log(Verbose, $"Successfully subscribed {exportReddit.User} to {subreddit}");
+                
+            }
         }
+
+        private static void Log(bool verbose, string message){
+            if(verbose)
+            {
+                Console.WriteLine(message);
+            }
+        }
+
     }
 }
