@@ -26,6 +26,10 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }} 
 
+      - name: dotnet build and publish
+        run: |
+          dotnet tool restore
+
       - name: version
         run: |
           dotnet version --project-file reddit-importer.csproj --new-version '${{ env.APPVERSION }}.${{ env.GITHUB_RUN_NUMBER }}'
