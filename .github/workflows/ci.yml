@@ -9,7 +9,6 @@ on:
       - '*'
 
 env:
-  DOTNET_VERSION: '5.0.102'
   APPVERSION: '1.0'
 
 jobs:
@@ -19,26 +18,20 @@ jobs:
 
       # Checkout the repo
       - uses: actions/checkout@master
-      
-      # Setup .NET Core SDK
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }} 
 
-      - name: dotnet build and publish
+      - name: dotnet tool restore
         run: |
           dotnet tool restore
 
       - name: version
         run: |
-          dotnet version --project-file reddit-importer.csproj --new-version '${{ env.APPVERSION }}.${{ env.GITHUB_RUN_NUMBER }}'
+          dotnet version --project-file reddit-importer.csproj --new-version '${{ env.APPVERSION }}.${{ github.run_number }}'
 
       # Run dotnet build and publish
       - name: dotnet build and publish
         run: |
           dotnet build --configuration Release
-          dotnet publish -c Release -o ./publish
+          dotnet publish --no-build -c Release -o ./publish
 
       - uses: papeloto/action-zip@v1
         with:
@@ -52,8 +45,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: '${{ env.APPVERSION }}.${{ env.GITHUB_RUN_NUMBER }}'
-          release_name: Release '${{ env.APPVERSION }}.${{ env.GITHUB_RUN_NUMBER }}'
+          tag_name: '${{ env.APPVERSION }}.${{ github.run_number }}'
+          release_name: Release '${{ env.APPVERSION }}.${{ github.run_number }}'
           draft: false
           prerelease: false
 
