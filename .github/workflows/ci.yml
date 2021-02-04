@@ -25,7 +25,7 @@ jobs:
 
       - name: version
         run: |
-          dotnet version --project-file reddit-importer.csproj --new-version '${{ env.APPVERSION }}.${{ github.run_number }}'
+          dotnet version --new-version '${{ env.APPVERSION }}.${{ github.run_number }}'
 
       # Run dotnet build and publish
       - name: dotnet build and publish
