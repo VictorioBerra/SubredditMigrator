@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <RuntimeIdentifier>win10-x86</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.2.5" />
-    <PackageReference Include="RedditSharp" Version="1.1.14" />
-    <PackageReference Include="System.Security.Permissions" Version="4.5.0" />
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="3.1.0" />
+    <PackageReference Include="RedditSharp" Version="2.0.0-CI00075" />
+    <PackageReference Include="System.Security.Permissions" Version="5.0.0" />
   </ItemGroup>
 
 </Project>
