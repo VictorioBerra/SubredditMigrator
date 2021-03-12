@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using McMaster.Extensions.CommandLineUtils;
 using System.Linq;
 using RedditSharp;
@@ -49,6 +49,9 @@ namespace reddit_importer
         [Option("--migratesaved", "Migrate saved posts and comments to new account.", CommandOptionType.NoValue)]
         public bool MigrateSaved { get; set; }
 
+        [Option("--yes", "Do not prompt, immediately execute.", CommandOptionType.NoValue)]
+        public bool Yes { get; set; }
+
         public static int Main(string[] args)
             => CommandLineApplication.Execute<Program>(args);
 
@@ -76,11 +79,15 @@ namespace reddit_importer
                 Console.WriteLine("I will delete all DESTINATION USER comments and posts.");
             }
 
-            var result = Prompt.GetYesNo("Do you want to proceed?", false);
-            if(!result)
+            if(!Yes)
             {
-                return;
+                var result = Prompt.GetYesNo("Do you want to proceed?", false);
+                if(!result)
+                {
+                    return;
+                }
             }
+
 
             Console.WriteLine($"Attempting login for {TargetUsername}");
             var targetRedditAgent = new BotWebAgent(TargetUsername, TargetPassword, clientid, clientsecret, redirecturi);
