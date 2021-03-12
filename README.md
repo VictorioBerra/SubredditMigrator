@@ -12,7 +12,7 @@ Should support cross-plat since its net5.0. Clone, change .csproj runtime/output
 
 ## Set Up
 
-Go here 👉 https://www.reddit.com/prefs/apps clickthe buttom at the bottom, should say "create an app" or "create another app"
+Go here 👉 https://www.reddit.com/prefs/apps click the button at the bottom, should say "create an app" or "create another app"
 
 **Name** can be whatever, be sure to select **script**, for **redirect uri** use `http://localhost/`
 

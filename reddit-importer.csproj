@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="3.1.0" />
-    <PackageReference Include="RedditSharp" Version="2.0.0-CI00075" />
+    <PackageReference Include="RedditSharp" Version="2.0.0" />
     <PackageReference Include="System.Security.Permissions" Version="5.0.0" />
   </ItemGroup>
 

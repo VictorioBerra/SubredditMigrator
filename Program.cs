@@ -73,7 +73,7 @@ namespace reddit_importer
 
             if (this.DeleteAllPostsAndComments)
             {
-                Console.WriteLine("I will delete all your comments and posts.");
+                Console.WriteLine("I will delete all DESTINATION USER comments and posts.");
             }
 
             var result = Prompt.GetYesNo("Do you want to proceed?", false);
@@ -118,7 +118,7 @@ namespace reddit_importer
 
             if(DeleteAllPostsAndComments)
             {
-                await targetReddit.User.GetComments(limit: 100).ForEachAsync(async (comment, index) =>
+                await destinationReddit.User.GetComments(limit: 100).ForEachAsync(async (comment, index) =>
                 {
                     try
                     {
@@ -130,7 +130,7 @@ namespace reddit_importer
                         Log(Verbose, ex.Message);
                     }
                 });
-                await targetReddit.User.GetPosts(limit: 100).ForEachAsync(async (post, index) =>
+                await destinationReddit.User.GetPosts(limit: 100).ForEachAsync(async (post, index) =>
                 {
                     try
                     {
